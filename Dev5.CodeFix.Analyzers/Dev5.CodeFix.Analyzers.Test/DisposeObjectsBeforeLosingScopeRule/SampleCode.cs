@@ -1,53 +1,57 @@
-﻿using System;
-using System.IO;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.IO;
 using System.Text;
-using System.Threading.Tasks;
-using System.Diagnostics;
 
-namespace ConsoleApplication1
+class DummyClass
 {
-    class DummyClass
+    private Stream _s;
+
+    public DummyClass()
     {
-        private Stream _s;
+        /* 
+         * almost correct usage: 
+         * value of field _s must be disposed later 
+         * (maybe the rule can suggest to implement IDisposable interface) 
+         */
+        _s = Create();
 
-        public DummyClass()
-        {
-            _s = Create();
+        /* 
+         * correct usage: 
+         * assigning IDisposable inside using block to variables
+         */
+        using (Stream a = Create(), b = Create()) { }
 
-            using(Stream a = Create(), b = Create())
-            {
+        /* 
+         * correct usage: 
+         * assigning IDisposable inside using block to a previously declared variable 
+         */
+        Stream c;
+        using (c = Create()) { }
 
-            }
+        /* 
+         * incorrect usage: 
+         * not using using statement for declaration and initialization of a IDisposable variable 
+         */
+        var d = Create();
 
-            var sb = new StringBuilder();
+        /*
+         * these lines were added just to prove that the rule is ignoring non-IDisposable variables
+         */
+        var sb = new StringBuilder(); // declaration and initialization of a non-IDisposable variable  
+        StringBuilder sb2;
+        sb2 = new StringBuilder(); // assigning non-IDisposable to a previously declared variable
+    }
 
-            Stream c;
-            using (c = Create())
-            {
+    Stream Create()
+    {
+        return null; // the real value is not important, return type is
+    }
 
-            }
-
-            StringBuilder sb2;
-            sb2 = new StringBuilder();
-
-            var d = Create();
-        }
-
-        Stream Create()
-        {
-            return null;
-        }
-
-        public void Method()
-        {
-            var stream = new MemoryStream();
-        }
-
-        public void Method2()
-        {
-            var sb = new StringBuilder();
-        }
+    public void Method()
+    {
+        /* 
+         * incorrect usage: 
+         * not using using statement for declaration and initialization of a IDisposable variable 
+         */
+        var stream = new MemoryStream();
     }
 }
